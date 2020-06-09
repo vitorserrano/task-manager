@@ -1,19 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList } from 'react-native';
+
+import { database } from '../../config/firebase';
 
 import styles from './styles';
 
+interface Task {
+  id: string;
+  title: string;
+  status: string;
+}
+
 const ToDo = () => {
-  const [data, setData] = useState<number[]>([1, 2, 3]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const current = 'todo';
+  const table = 'tasks';
+
+  useEffect(() => {
+    database
+      .collection(table)
+      .where('status', '==', current)
+      .onSnapshot((query) => {
+        const items: any[] = [];
+
+        query.forEach((doc) => {
+          items.push({
+            id: doc.id,
+            ...doc.data(),
+          });
+        });
+
+        setTasks(items);
+      });
+  }, []);
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
-        keyExtractor={(data) => String(data)}
-        renderItem={({ item: data }) => (
+        data={tasks}
+        keyExtractor={(tasks) => String(tasks.id)}
+        renderItem={({ item: task }) => (
           <View style={styles.listItem}>
-            <Text>{data}</Text>
+            <Text>{task.id}</Text>
           </View>
         )}
       />
