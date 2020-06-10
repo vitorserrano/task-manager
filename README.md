@@ -1,16 +1,13 @@
 <h1 align="center">
     Task Manager
+    <br>
+    <a href="https://www.linkedin.com/in/vitor-serrano/" target="_blank">
+      <img alt="Made by Vitor Serrano" src="https://img.shields.io/badge/made%20by-Vitor%20Serrano-7159C1">
+    </a>
+    <a href="LICENSE.md" target="_blank">
+      <img alt="LICENSE" src="https://img.shields.io/github/license/vitorserrano/task-manager?color=7159C1">
+    </a>
 </h1>
-
-<p align="center">
-  <a href="https://www.linkedin.com/in/vitor-serrano/" target="_blank">
-    <img alt="Made by Vitor Serrano" src="https://img.shields.io/badge/made%20by-Vitor%20Serrano-7159C1">
-  </a>
-
-  <a href="LICENSE.md" target="_blank">
-    <img alt="LICENSE" src="https://img.shields.io/github/license/vitorserrano/task-manager?color=7159C1">
-  </a>
-</p>
 
 # Índice
 
