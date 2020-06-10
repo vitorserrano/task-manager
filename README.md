@@ -9,6 +9,9 @@
   <a href="https://yarnpkg.com/" target="_blank">
     <img alt="Yarn version" src="https://img.shields.io/badge/yarn-v1.22.4-blue%20">
   </a>
+  <a>
+    <img alt="Eslint style guide" src="https://img.shields.io/badge/eslint-airbnb-red">
+  </a>
   <a href="https://www.linkedin.com/in/vitor-serrano/" target="_blank">
     <img alt="Made by Vitor Serrano" src="https://img.shields.io/badge/made%20by-Vitor%20Serrano-7159C1">
   </a>
