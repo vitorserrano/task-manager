@@ -1,38 +1,42 @@
 import React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import TaskList from './pages/TaskList';
 
-const Tab = createMaterialTopTabNavigator();
+import { Ionicons } from '@expo/vector-icons'; 
+
+const Stack = createStackNavigator();
 
 const Routes = () => {
   return (
     <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen 
+      <Stack.Navigator    
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen 
           name="TaskList" 
           component={TaskList} 
           initialParams={{
             currentStatus: 'todo', nextStatus: 'doing' 
           }} 
         />
-        <Tab.Screen 
+        <Stack.Screen 
           name="Doing" 
           component={TaskList} 
           initialParams={{
             currentStatus: 'doing', nextStatus: 'done' 
           }} 
         />
-        <Tab.Screen 
+        <Stack.Screen 
           name="Done" 
           component={TaskList} 
           initialParams={{
             currentStatus: 'done', nextStatus: null 
           }} 
         />
-      </Tab.Navigator>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
