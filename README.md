@@ -43,6 +43,19 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 - [Expo](https://expo.io/)
 - [Firebase](https://firebase.google.com/)
 
+## :iphone: Resultado
+
+<p align="center">
+  <img alt="Task Manager" src=".github/Video.gif" width="400">
+</p>
+
+## :iphone: Screens
+
+<p align="center">
+  <img alt="A fazer" src=".github/ToDo.jpeg" width="300">
+  <img alt="Em andamento" src=".github/Doing.jpeg" width="300">
+  <img alt="Concluído" src=".github/Done.jpeg" width="300">
+</p>
 
 ## :fire: Pré-requisitos
 

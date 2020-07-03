@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { View, Text, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Overlay, Input, Button } from 'react-native-elements';
+import { View, Text, FlatList, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
+import { Overlay } from 'react-native-elements';
+
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 import { database } from '../../config/firebase';
 
-import { AntDesign, Feather } from '@expo/vector-icons'; 
+import { AntDesign, Feather, Octicons } from '@expo/vector-icons';
 import styles from './styles';
 
 interface Params {
   currentStatus: string,
   nextStatus: string,
+  titleList: string,
+  descriptionList: string,
 }
 
 interface Task {
@@ -24,12 +29,27 @@ const ToDo = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const { currentStatus, nextStatus } = route.params as Params;
+  const { currentStatus, nextStatus, titleList, descriptionList } = route.params as Params;
+
+  let currentIcon: string = '';
+
+  if (currentStatus === 'todo') {
+    currentIcon = 'file-text';
+  }
+
+  if (currentStatus === 'doing') {
+    currentIcon = 'list';
+  }
+
+  if (currentStatus === 'done') {
+    currentIcon = 'check-circle';
+  }
+
   const table = 'tasks';
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState<string>('');
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const toggleOverlay = () => setIsVisible(!isVisible);
 
@@ -40,7 +60,7 @@ const ToDo = () => {
         status: currentStatus,
       });
 
-      setIsVisible(false); 
+      setIsVisible(false);
       setTitle('');
     } catch (error) {
       alert(error.message);
@@ -49,13 +69,28 @@ const ToDo = () => {
 
   const handleUpdateTask = async (id: string) => {
     try {
+      let nextName: string = '';
+
+      if (currentStatus === 'todo') {
+        nextName = 'em andamento';
+      }
+
+      if (currentStatus === 'doing') {
+        nextName = 'concluída';
+      }
+
       database
         .collection(table)
         .doc(id)
         .update({
           status: nextStatus,
         });
- 
+
+      showMessage({
+        message: "Sucesso!",
+        description: "A tarefa agora estã " + nextName,
+        type: "success",
+      });
     } catch (error) {
       alert(error.message);
     }
@@ -67,10 +102,53 @@ const ToDo = () => {
         .collection(table)
         .doc(id)
         .delete();
- 
+
+        showMessage({
+          message: "Sucesso!",
+          description: "A tarefa foi excluída!",
+          type: "success",
+        });
     } catch (error) {
       alert(error.message);
     }
+  }
+
+  const LeftActions = () => {
+    let icon: string = '';
+
+    if (currentStatus === 'todo') {
+      icon = 'list';
+    }
+
+    if (currentStatus === 'doing') {
+      icon = 'check-circle';
+    }
+
+    return (
+      <View style={styles.leftAction}>
+        <Feather name={icon} size={30} color="#fff" />
+      </View>
+    );
+  }
+
+  const RightActions = () => {
+    return (
+      <View style={styles.rightAction}>
+        <Feather name="trash" size={24} color="#fff" />
+      </View>
+    );
+  }
+
+  const navigateToToDo = () => {
+    navigation.navigate('ToDo');
+  }
+
+  const navigateToToDoing = () => {
+    navigation.navigate('Doing');
+  }
+
+  const navigateToToDone = () => {
+    navigation.navigate('Done');
   }
 
   useEffect(() => {
@@ -99,21 +177,21 @@ const ToDo = () => {
           <Text style={styles.headerTitle}>Task Manager</Text>
 
           <View style={styles.statusButtonGroup}>
-          <TouchableOpacity style={styles.statusButton}>
+            <TouchableOpacity style={styles.statusButton} onPress={navigateToToDo}>
               <View style={styles.statusButtonIcon}>
                 <Feather name="file-text" size={30} color="#7750fc" />
               </View>
               <Text style={styles.statusButtonText}>A fazer</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.statusButton}>
+            <TouchableOpacity style={styles.statusButton} onPress={navigateToToDoing}>
               <View style={styles.statusButtonIcon}>
-                <Feather name="check-circle" size={30} color="#7750fc" />
+                <Feather name="list" size={30} color="#7750fc" />
               </View>
               <Text style={styles.statusButtonText}>Em andamento</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.statusButton}>
+            <TouchableOpacity style={styles.statusButton} onPress={navigateToToDone}>
               <View style={styles.statusButtonIcon}>
                 <Feather name="check-circle" size={30} color="#7750fc" />
               </View>
@@ -122,49 +200,71 @@ const ToDo = () => {
           </View>
         </View>
 
-            
+
         <View style={styles.list}>
-          <Text style={styles.listTitle}>A fazer</Text>
-          <Text style={styles.listDescription}>Todas as tarefas a serem feitas.</Text>
-        
+          <Text style={styles.listTitle}>{titleList}</Text>
+        <Text style={styles.listDescription}>{descriptionList}</Text>
+
           <FlatList
             data={tasks}
             keyExtractor={(tasks) => String(tasks.id)}
             renderItem={({ item: task }) => (
-                <View style={styles.listItem}>
-                  <Text>{task.title}</Text>
-                  <View style={styles.buttonGroup}>
-                      <TouchableOpacity onPress={() => handleRemoveTask(task.id)}>
-                        <Feather name="trash" size={24} color="#f45" />
-                      </TouchableOpacity>
-      
-                    {nextStatus && (
-                      <TouchableOpacity onPress={() => handleUpdateTask(task.id)}>
-                        <AntDesign name="arrowright" size={24} color="#666" />
-                      </TouchableOpacity>
-                    )}
+              <>
+                {nextStatus && (
+                  <Swipeable
+                  renderLeftActions={LeftActions}
+                  renderRightActions={RightActions}
+                  onSwipeableLeftOpen={() => handleUpdateTask(task.id)}
+                  onSwipeableRightOpen={() => handleRemoveTask(task.id)}
+                  >
+                  <View style={styles.listItem}>
+                    <View style={styles.listIcon}>
+                      <Feather name={currentIcon} size={24} color="#7750fc" />
+                    </View>
+                    <Text style={styles.listText}>{task.title}</Text>
+                    </View>
+                </Swipeable>
+                )}
+
+                {!nextStatus && (
+                  <Swipeable
+                  renderRightActions={RightActions}
+                  onSwipeableRightOpen={() => handleRemoveTask(task.id)}
+                  >
+                  <View style={styles.listItem}>
+                    <View style={styles.listIcon}>
+                      <Feather name={currentIcon} size={24} color="#7750fc" />
+                    </View>
+                    <Text style={styles.listText}>{task.title}</Text>
                   </View>
-                </View>
+                </Swipeable>
+                )}
+              </>
             )}
           />
           </View>
-          
+
         <Overlay
-          overlayStyle={styles.overlay} 
-          isVisible={isVisible} 
+          overlayStyle={styles.overlay}
+          isVisible={isVisible}
           onBackdropPress={() => toggleOverlay}
         >
-          <Text>Cadastrar a tarefa</Text>
-          <Input 
-            placeholder="Escreva sua tarefa" 
-            value={title} 
-            onChangeText={setTitle} 
-          />
-          <Button title="Adicionar" onPress={handleAddTask} />
+          <View style={{ paddingHorizontal: 10 }}>
+            <Text style={styles.overlayTitle}>Cadastrar tarefa</Text>
+            <TextInput
+              style={styles.overlayInput}
+              placeholder="Título da tarefa"
+              value={title}
+              onChangeText={setTitle}
+            />
+            <TouchableOpacity style={styles.overlayButton} onPress={handleAddTask}>
+              <Text style={styles.overlayButtonText}>Adicionar</Text>
+            </TouchableOpacity>
+          </View>
         </Overlay>
       </View>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.fabButton}
         onPress={toggleOverlay}
       >
